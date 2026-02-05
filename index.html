@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🧠 Prediction Machine — Scenario Choices</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111a2b;
+      --line:rgba(255,255,255,.12);
+      --text:#e8eefc;
+      --sub:#a9b7d6;
+      --accent:#7cdbff;
+      --good:#7CFFB2;
+      --warn:#ffd27c;
+      --bad:#ff7c9b;
+      --shadow:0 16px 40px rgba(0,0,0,.35);
+      --radius:18px;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 900px at 15% 10%, rgba(124,219,255,.16), transparent 60%),
+                  radial-gradient(1000px 800px at 90% 25%, rgba(124,255,178,.10), transparent 55%),
+                  linear-gradient(180deg, var(--bg), #070b14);
+      color:var(--text);
+    }
+    header{
+      padding:18px 16px 12px;
+      border-bottom:1px solid var(--line);
+    }
+    h1{margin:0;font-size:20px;letter-spacing:.2px}
+    .subtitle{margin:6px 0 0;color:var(--sub);line-height:1.35;font-size:13px}
+    main{max-width:1100px;margin:0 auto;padding:14px 16px 26px}
+    .topRow{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .pillRow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .pill{
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--sub);
+    }
+    .layout{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:12px;
+    }
+    @media (max-width: 980px){
+      .layout{grid-template-columns:1fr}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .cardHeader{
+      padding:12px 14px 10px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+    .cardHeader h2{
+      margin:0; font-size:15px; letter-spacing:.2px;
+      display:flex; gap:10px; align-items:center;
+    }
+    .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    select, button{
+      font-family:inherit;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      padding:9px 10px;
+      font-size:13px;
+    }
+    button{
+      cursor:pointer;
+      border-color: rgba(124,219,255,.35);
+      background:rgba(124,219,255,.12);
+    }
+    button.secondary{
+      border-color: var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--sub);
+    }
+    button.danger{
+      border-color: rgba(255,124,155,.35);
+      background:rgba(255,124,155,.10);
+    }
+    .content{padding:14px}
+    .scenarioTitle{
+      font-size:16px;
+      margin:0 0 6px;
+      letter-spacing:.2px;
+    }
+    .scenarioText{
+      margin:0;
+      color:var(--sub);
+      line-height:1.4;
+      font-size:14px;
+    }
+    .choices{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (max-width: 640px){
+      .choices{grid-template-columns:1fr}
+    }
+    .choiceBtn{
+      text-align:left;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.16);
+      cursor:pointer;
+      transition:.15s transform ease, .15s opacity ease, .15s border-color ease;
+      min-height:60px;
+      font-size:15px;
+      line-height:1.25;
+    }
+    .choiceBtn:hover{transform:translateY(-1px); border-color:rgba(124,219,255,.35)}
+    .choiceMeta{
+      display:block;
+      font-size:12px;
+      color:var(--sub);
+      margin-top:6px;
+      font-family:var(--mono);
+      opacity:.9;
+    }
+    .feedback{
+      margin-top:12px;
+      border-top:1px solid var(--line);
+      padding-top:12px;
+    }
+    .banner{
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.14);
+      margin-bottom:10px;
+    }
+    .banner.good{border-color:rgba(124,255,178,.35); background:rgba(124,255,178,.08)}
+    .banner.warn{border-color:rgba(255,210,124,.35); background:rgba(255,210,124,.08)}
+    .banner.bad{border-color:rgba(255,124,155,.35); background:rgba(255,124,155,.08)}
+    .banner strong{display:block; margin-bottom:4px}
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 700px){ .kv{grid-template-columns:1fr} }
+    .kvBox{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.14);
+      border-radius:16px;
+      padding:10px 12px;
+    }
+    .kvBox .k{color:var(--sub); font-size:12px; margin-bottom:6px}
+    .kvBox .v{font-size:13px; line-height:1.35}
+    .rightCol .content{padding:12px 14px 14px}
+    .small{font-size:12px;color:var(--sub);line-height:1.35}
+    .toggleRow{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      border-top:1px solid var(--line);
+      padding:10px 14px;
+    }
+    .toggle{
+      display:flex; gap:8px; align-items:center; color:var(--sub); font-size:12px;
+    }
+    .toggle input{transform:translateY(1px)}
+    .boardCols{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 700px){ .boardCols{grid-template-columns:1fr} }
+    .miniCol{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.14);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .miniColHeader{
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .miniColHeader strong{font-size:13px}
+    .miniColHeader span{font-size:11px;color:var(--sub);font-family:var(--mono)}
+    ul{list-style:none;margin:0;padding:10px}
+    li{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      border-radius:14px;
+      padding:10px 10px;
+      margin:8px 0;
+      font-size:13px;
+      line-height:1.25;
+    }
+    .tag{
+      display:inline-block;
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--sub);
+      margin-top:6px;
+    }
+    .tag.good{border-color:rgba(124,255,178,.35); color:rgba(124,255,178,.95)}
+    .tag.warn{border-color:rgba(255,210,124,.35); color:rgba(255,210,124,.95)}
+    .tag.bad{border-color:rgba(255,124,155,.35); color:rgba(255,124,155,.95)}
+    textarea{
+      width:100%;
+      min-height:120px;
+      background:rgba(0,0,0,.18);
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      outline:none;
+      resize:vertical;
+      font-family:var(--mono);
+      font-size:12px;
+      line-height:1.35;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🧠 Your Brain Is a Prediction Machine — Scenario Choices</h1>
+  <p class="subtitle">
+    Detox-friendly: pick a scenario → choose a response → see why your brain wants it + what actually helps.
+    Use Day Filters to run Cravings Day, Anxiety Day, Depressed Day, or NPC Day.
+  </p>
+</header>
+
+<main>
+  <div class="topRow">
+    <div class="pillRow">
+      <span class="pill">EBPs: Psychoeducation</span>
+      <span class="pill">CBT</span>
+      <span class="pill">ACT</span>
+      <span class="pill">10 scenarios</span>
+    </div>
+    <div class="pillRow">
+      <span class="pill">Big buttons</span>
+      <span class="pill">Instant feedback</span>
+      <span class="pill">Random respects filter</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT: SCENARIO + CHOICES -->
+    <section class="card">
+      <div class="cardHeader">
+        <h2>🎬 Scenario</h2>
+        <div class="controls">
+          <select id="dayFilter">
+            <option value="all">All Days</option>
+            <option value="cravings">Cravings Day</option>
+            <option value="anxiety">Anxiety Day</option>
+            <option value="depressed">Depressed Day</option>
+            <option value="npc">NPC Day</option>
+          </select>
+          <select id="scenarioSelect"></select>
+          <button id="randomBtn">Random</button>
+          <button class="secondary" id="resetChoiceBtn">Clear feedback</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <h3 class="scenarioTitle" id="scenarioTitle">—</h3>
+        <p class="scenarioText" id="scenarioText">—</p>
+
+        <div class="choices" id="choices"></div>
+
+        <div class="feedback" id="feedback" style="display:none;">
+          <div class="banner" id="banner">
+            <strong id="verdictTitle">—</strong>
+            <div class="small" id="verdictLine">—</div>
+          </div>
+
+          <div class="kv">
+            <div class="kvBox">
+              <div class="k">🧠 Why your brain predicts this will help</div>
+              <div class="v" id="whyBrain">—</div>
+            </div>
+            <div class="kvBox">
+              <div class="k">⚡ Short-term effect</div>
+              <div class="v" id="shortTerm">—</div>
+            </div>
+            <div class="kvBox">
+              <div class="k">🧾 Long-term effect</div>
+              <div class="v" id="longTerm">—</div>
+            </div>
+            <div class="kvBox">
+              <div class="k">✅ “Actually helps” alternative</div>
+              <div class="v" id="altHelp">—</div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="secondary" id="tryAnotherBtn">Try another choice</button>
+            <button id="addToBoardBtn">Add to board</button>
+          </div>
+
+          <p class="small" style="margin-top:10px;">
+            Facilitator prompt: “What is your brain trying to protect you from?” and “What’s the cost later?”
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: SCIENCE + BOARD -->
+    <aside class="card rightCol">
+      <div class="cardHeader">
+        <h2>🧠 Quick Brain Science</h2>
+        <div class="controls">
+          <button class="secondary" id="exportBtn">Export</button>
+          <button class="danger" id="clearBoardBtn">Clear board</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="small">
+          <b>Prediction = pull.</b> The brain guesses what will reduce discomfort fast.
+          <br><b>Dopamine</b> often spikes for <i>anticipation</i>, not true satisfaction.
+          <br><b>Fast relief trains loops</b> even when consequences show up later.
+        </div>
+
+        <div class="toggleRow">
+          <label class="toggle"><input type="checkbox" id="showCategories" checked> Show category tags</label>
+          <label class="toggle"><input type="checkbox" id="showBoard" checked> Show board</label>
+        </div>
+
+        <div id="boardArea">
+          <div class="boardCols">
+            <div class="miniCol">
+              <div class="miniColHeader">
+                <strong>🧠 Brain predicts</strong>
+                <span id="countPredict">0</span>
+              </div>
+              <ul id="predictList"></ul>
+            </div>
+            <div class="miniCol">
+              <div class="miniColHeader">
+                <strong>✅ Actually helps</strong>
+                <span id="countActual">0</span>
+              </div>
+              <ul id="actualList"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <h3 style="margin:10px 0 6px; font-size:14px;">📦 Export Preview</h3>
+          <textarea id="exportPreview" readonly placeholder="Click Export to generate text you can copy."></textarea>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const STORAGE_KEY = "prediction_machine_scenarios_v2";
+
+  // ===== Scenario Bank (10 scenarios) =====
+  // tags: cravings | anxiety | depressed | npc (can be multiple)
+  const scenarios = [
+    {
+      id: "craving-1",
+      title: "Craving spike after a stressful phone call",
+      category: "Craving / Urge",
+      tags: ["cravings", "anxiety"],
+      text: "You hang up the phone and your body feels tight and restless. Your brain says, “I need relief NOW.”",
+      choices: [
+        {
+          label: "“Just one” (or planning the next use) to calm down",
+          type: "trap",
+          whyBrain: "Your brain predicts fast relief because it learned: discomfort → substance → temporary quiet.",
+          shortTerm: "Numbs feelings quickly. Drops tension briefly.",
+          longTerm: "Strengthens the craving loop; increases shame/withdrawal/anxiety later.",
+          actuallyHelps: "Delay 10 minutes + cold water + paced breathing + tell someone."
+        },
+        {
+          label: "Isolate and scroll to escape the feeling",
+          type: "mixed",
+          whyBrain: "Avoidance feels safe because it reduces stimulation and social pressure.",
+          shortTerm: "Less input. Might feel calmer for a moment.",
+          longTerm: "Avoidance can increase rumination and cravings; problems return bigger.",
+          actuallyHelps: "One small reset: water + stand up + 2-minute walk + grounding."
+        },
+        {
+          label: "Paced breathing + cold water + name the feeling out loud",
+          type: "help",
+          whyBrain: "You’re retraining the body alarm: “We’re safe enough to ride this.”",
+          shortTerm: "Craving intensity often drops; heart rate settles.",
+          longTerm: "Builds confidence: “I can feel things without using.”",
+          actuallyHelps: "Keep it short: 60–120 seconds is a win."
+        },
+        {
+          label: "Ask staff/peer: “Can you sit with me for 2 minutes?”",
+          type: "help",
+          whyBrain: "Connection regulates threat signals. Co-regulation reduces urgency.",
+          shortTerm: "Less alone; less reactive.",
+          longTerm: "Strengthens recovery wiring: reach out instead of act out.",
+          actuallyHelps: "Make it tiny and specific: “2 minutes.”"
+        }
+      ]
+    },
+    {
+      id: "craving-2",
+      title: "Boredom hits hard in the afternoon",
+      category: "Craving / Urge",
+      tags: ["cravings", "npc"],
+      text: "It’s mid-afternoon. Your brain says, “This is pointless… I need something.”",
+      choices: [
+        {
+          label: "Chase stimulation (fantasize, plan, negotiate ‘rules’)",
+          type: "trap",
+          whyBrain: "Your brain predicts dopamine relief: stimulation = escape from boredom/emptiness.",
+          shortTerm: "You feel lit up for a second.",
+          longTerm: "Makes boredom sharper later; reactivates reward chasing and obsession.",
+          actuallyHelps: "Do a 10-minute ‘activation’ task + check in with someone."
+        },
+        {
+          label: "Sleep all day to fast-forward time",
+          type: "mixed",
+          whyBrain: "Shutting down reduces discomfort and decision-making.",
+          shortTerm: "Less awareness. Temporary escape.",
+          longTerm: "Can worsen mood and sleep schedule; increases ‘stuck’ feelings.",
+          actuallyHelps: "Light movement + sunlight + one small purpose task."
+        },
+        {
+          label: "Pick a tiny goal: shower, snack, water, walk",
+          type: "help",
+          whyBrain: "Action creates momentum and signals safety to the nervous system.",
+          shortTerm: "Boredom drops; you feel less trapped.",
+          longTerm: "Builds routine-based recovery and self-trust.",
+          actuallyHelps: "Keep it ‘so small it’s insulting.’"
+        },
+        {
+          label: "Ask: “What do I need: comfort, movement, or connection?”",
+          type: "help",
+          whyBrain: "You’re identifying the real need under the urge.",
+          shortTerm: "Urge becomes clearer and less magical.",
+          longTerm: "Better self-regulation and fewer impulsive moves.",
+          actuallyHelps: "Choose ONE: comfort (tea), movement (2 min walk), connection (2 min chat)."
+        }
+      ]
+    },
+    {
+      id: "anxiety-1",
+      title: "Anxiety: Your brain predicts catastrophe",
+      category: "Anxiety / Panic",
+      tags: ["anxiety"],
+      text: "Anxiety rises and your mind starts saying: “This is going to be a disaster.”",
+      choices: [
+        {
+          label: "Google symptoms / replay worst-case scenarios",
+          type: "trap",
+          whyBrain: "Your brain thinks certainty = safety, so it searches to feel in control.",
+          shortTerm: "Brief control, then more fear.",
+          longTerm: "Trains reassurance-seeking and keeps anxiety alive.",
+          actuallyHelps: "Grounding + label the thought + return to the present."
+        },
+        {
+          label: "Avoid the thing completely",
+          type: "trap",
+          whyBrain: "Avoidance gives instant relief, so the brain learns it as “the solution.”",
+          shortTerm: "Anxiety drops fast.",
+          longTerm: "Avoidance grows anxiety and shrinks your world.",
+          actuallyHelps: "Approach in tiny steps: ‘Do it anxious.’"
+        },
+        {
+          label: "Name: “My brain is predicting.” Then do one next step",
+          type: "help",
+          whyBrain: "You separate prediction from reality and choose values-based action.",
+          shortTerm: "Anxiety may stay, but control increases.",
+          longTerm: "Reduces fear learning; builds tolerance.",
+          actuallyHelps: "Use: ‘Thanks brain. Noted.’"
+        },
+        {
+          label: "Ask: “What would I do if I felt 10% safer?”",
+          type: "help",
+          whyBrain: "Small safety increases widen options without needing perfection.",
+          shortTerm: "Creates momentum.",
+          longTerm: "Builds skill: regulate first, then decide.",
+          actuallyHelps: "Pick one safety action: water, breathe, sit upright."
+        }
+      ]
+    },
+    {
+      id: "anxiety-2",
+      title: "Social anxiety: You feel watched and judged",
+      category: "Anxiety / Panic",
+      tags: ["anxiety", "npc"],
+      text: "You walk into a common area and your brain says, “Everyone can tell I’m a mess.”",
+      choices: [
+        {
+          label: "Leave immediately and hide in your room",
+          type: "trap",
+          whyBrain: "Escape reduces threat feelings instantly.",
+          shortTerm: "Relief right away.",
+          longTerm: "Trains fear; makes public spaces feel dangerous.",
+          actuallyHelps: "Stay 2 minutes + anchor to breath + do one neutral action."
+        },
+        {
+          label: "Mask hard / perform to ‘look normal’",
+          type: "mixed",
+          whyBrain: "Performance tries to prevent rejection.",
+          shortTerm: "You might get through it.",
+          longTerm: "Exhausting; increases shame and disconnection.",
+          actuallyHelps: "Use a simple script: ‘I’m anxious and I’m still here.’"
+        },
+        {
+          label: "Ground in senses: feet, hands, temperature, breath",
+          type: "help",
+          whyBrain: "Sensory input pulls you out of mind-reading and into the present.",
+          shortTerm: "Intensity decreases.",
+          longTerm: "Builds confidence in public settings.",
+          actuallyHelps: "Name 5 things you see; 4 you feel; 3 you hear."
+        },
+        {
+          label: "Make one micro-connection: say hi to one person",
+          type: "help",
+          whyBrain: "Tiny connection reduces threat; builds co-regulation.",
+          shortTerm: "Less alone.",
+          longTerm: "Rebuilds social safety and belonging.",
+          actuallyHelps: "Make it small: ‘Hey.’ Then you’re done."
+        }
+      ]
+    },
+    {
+      id: "depressed-1",
+      title: "Depressed morning: everything feels heavy",
+      category: "Low mood / Depression",
+      tags: ["depressed", "npc"],
+      text: "You wake up and your brain says, “What’s the point? I can’t do today.”",
+      choices: [
+        {
+          label: "Stay in bed all day to avoid the day",
+          type: "trap",
+          whyBrain: "Shutting down avoids effort and protects you from disappointment.",
+          shortTerm: "No pressure.",
+          longTerm: "Mood drops further; shame grows; sleep gets worse.",
+          actuallyHelps: "Behavioral activation: one tiny action before thinking more."
+        },
+        {
+          label: "Beat yourself up for being depressed",
+          type: "trap",
+          whyBrain: "Criticism pretends to motivate, but it triggers threat/shame.",
+          shortTerm: "None (usually worse).",
+          longTerm: "More hopelessness; higher relapse risk.",
+          actuallyHelps: "Self-compassion + ‘small is still real’ approach."
+        },
+        {
+          label: "Do “the smallest possible start” (sit up, feet on floor)",
+          type: "help",
+          whyBrain: "Action changes state faster than debate in the mind.",
+          shortTerm: "Slight energy shift.",
+          longTerm: "Builds self-trust and momentum.",
+          actuallyHelps: "Chain it: sit up → water → bathroom → light."
+        },
+        {
+          label: "Ask for a 2-minute check-in instead of isolating",
+          type: "help",
+          whyBrain: "Connection reduces hopelessness and threat signals.",
+          shortTerm: "Less alone; more supported.",
+          longTerm: "Builds protective relationships.",
+          actuallyHelps: "Script: ‘I’m low. Can you just check in?’"
+        }
+      ]
+    },
+    {
+      id: "depressed-2",
+      title: "Anhedonia: nothing feels rewarding",
+      category: "Low mood / Depression",
+      tags: ["depressed", "npc"],
+      text: "You try to imagine doing anything helpful and your brain says, “Nothing will work anyway.”",
+      choices: [
+        {
+          label: "Quit before starting because it ‘won’t help’",
+          type: "trap",
+          whyBrain: "Your brain predicts failure to avoid effort and future disappointment.",
+          shortTerm: "No effort required.",
+          longTerm: "Reinforces helplessness and stagnation.",
+          actuallyHelps: "Do a 5-minute experiment (not a lifestyle change)."
+        },
+        {
+          label: "Chase intense stimulation to feel something",
+          type: "trap",
+          whyBrain: "The brain wants a dopamine spike to override flatness.",
+          shortTerm: "Temporary spark.",
+          longTerm: "Crash + cravings; reward system becomes pickier.",
+          actuallyHelps: "Gentle activation + connection + repeatable routines."
+        },
+        {
+          label: "Pick a “neutral” activity and do it anyway (walk, shower)",
+          type: "help",
+          whyBrain: "You’re teaching: ‘Feelings are not the boss; action leads.’",
+          shortTerm: "Might feel boring—still counts.",
+          longTerm: "Anhedonia softens with consistent activation.",
+          actuallyHelps: "Aim for “done,” not “enjoyed.”"
+        },
+        {
+          label: "Use the phrase: “I’m in a dopamine deficit. This is temporary.”",
+          type: "help",
+          whyBrain: "Reframes the state as brain recovery, not personal failure.",
+          shortTerm: "Less shame; more patience.",
+          longTerm: "Better follow-through and less relapse risk.",
+          actuallyHelps: "Pair with one tiny action immediately."
+        }
+      ]
+    },
+    {
+      id: "npc-1",
+      title: "NPC day: you feel numb / on autopilot",
+      category: "NPC / Numb / Autopilot",
+      tags: ["npc", "depressed"],
+      text: "You’re physically here, but mentally checked out. Your brain says, “Don’t feel. Don’t engage.”",
+      choices: [
+        {
+          label: "Stay numb and wait for it to pass",
+          type: "mixed",
+          whyBrain: "Numbing protects you from overwhelm and emotional pain.",
+          shortTerm: "Less feeling.",
+          longTerm: "Disconnection continues; cravings can sneak in.",
+          actuallyHelps: "Tiny sensory wake-up + one small connection."
+        },
+        {
+          label: "Pick a fight / create drama to feel alive",
+          type: "trap",
+          whyBrain: "Intensity can feel like aliveness when you’re flat.",
+          shortTerm: "Stimulation spike.",
+          longTerm: "Guilt, conflict, and destabilization.",
+          actuallyHelps: "Safe stimulation: movement, music, cold water, sunlight."
+        },
+        {
+          label: "Do a sensory reset (cold water, strong mint, stretch)",
+          type: "help",
+          whyBrain: "Sensory input can reboot attention without chaos.",
+          shortTerm: "More present; less fog.",
+          longTerm: "Builds a healthy ‘wake-up’ toolkit.",
+          actuallyHelps: "Pick ONE sensory lever and do it for 60 seconds."
+        },
+        {
+          label: "Make a micro-choice: ‘What’s one thing I can do in 2 minutes?’",
+          type: "help",
+          whyBrain: "Choice restores agency—opposite of autopilot.",
+          shortTerm: "More control.",
+          longTerm: "Less dissociation; more engagement.",
+          actuallyHelps: "Examples: water, shoes on, walk to hallway, ask a question."
+        }
+      ]
+    },
+    {
+      id: "npc-2",
+      title: "Brain fog: you can’t focus and feel ‘stupid’",
+      category: "NPC / Numb / Autopilot",
+      tags: ["npc", "anxiety", "depressed"],
+      text: "You can’t track conversations well. Your brain says, “You’re broken. Don’t try.”",
+      choices: [
+        {
+          label: "Shame spiral: “I’m dumb. I can’t do this.”",
+          type: "trap",
+          whyBrain: "Shame tries to explain discomfort, but it makes threat worse.",
+          shortTerm: "None (usually worse).",
+          longTerm: "Avoidance, isolation, and relapse risk increase.",
+          actuallyHelps: "Normalize detox brain + ask for repetition without apology."
+        },
+        {
+          label: "Check out completely and stop participating",
+          type: "trap",
+          whyBrain: "Disengaging prevents embarrassment.",
+          shortTerm: "Less exposure.",
+          longTerm: "Less learning, less connection, more stuckness.",
+          actuallyHelps: "Pick one tiny way to participate (one word, one nod, one question)."
+        },
+        {
+          label: "Use a simple script: “Detox brain—can you repeat that?”",
+          type: "help",
+          whyBrain: "You ask for what you need instead of assuming failure.",
+          shortTerm: "Less shame.",
+          longTerm: "Builds self-advocacy and engagement.",
+          actuallyHelps: "One sentence. No long explanation needed."
+        },
+        {
+          label: "Do a reset: water + slow breathing + feet on floor",
+          type: "help",
+          whyBrain: "Physiology affects cognition. Regulate first, then think.",
+          shortTerm: "Slight clarity boost.",
+          longTerm: "Better focus over time; less panic about symptoms.",
+          actuallyHelps: "60 seconds counts."
+        }
+      ]
+    },
+    {
+      id: "sleep-1",
+      title: "Insomnia: thoughts ramp up at night",
+      category: "Sleep / Restlessness",
+      tags: ["anxiety", "cravings", "npc"],
+      text: "It’s late. Your body is tired but your mind is loud. Your brain says, “Fix this right now.”",
+      choices: [
+        {
+          label: "Fight sleep and doom-scroll for hours",
+          type: "trap",
+          whyBrain: "Distraction feels like control, and the light/novelty hooks attention.",
+          shortTerm: "You avoid silence.",
+          longTerm: "Sleep worsens; anxiety increases; cravings increase.",
+          actuallyHelps: "Low-stim routine: dim lights + breathing + body scan."
+        },
+        {
+          label: "Panic: “If I don’t sleep, tomorrow is ruined”",
+          type: "trap",
+          whyBrain: "Catastrophizing tries to force certainty and control.",
+          shortTerm: "More adrenaline.",
+          longTerm: "Sleep anxiety becomes a loop.",
+          actuallyHelps: "ACT: allow wakefulness + focus on rest, not sleep."
+        },
+        {
+          label: "Do a 3-step reset: breathe, relax jaw, heavy blanket",
+          type: "help",
+          whyBrain: "Signals safety to the nervous system.",
+          shortTerm: "Body softens; thoughts slow.",
+          longTerm: "Better sleep association and less panic.",
+          actuallyHelps: "Keep it boring. Boring is the goal."
+        },
+        {
+          label: "Write a 2-minute brain dump then stop",
+          type: "help",
+          whyBrain: "Externalizing thoughts reduces mental load.",
+          shortTerm: "Less looping.",
+          longTerm: "Stronger sleep skills and less rumination.",
+          actuallyHelps: "Set a timer. Don’t turn it into a novel."
+        }
+      ]
+    },
+    {
+      id: "shame-1",
+      title: "Shame spike after a mistake / slip",
+      category: "Shame / Self-attack",
+      tags: ["depressed", "cravings", "anxiety"],
+      text: "You made a mistake. Your brain says, “You blew it. You’re the problem.”",
+      choices: [
+        {
+          label: "Hide it and pretend it didn’t happen",
+          type: "trap",
+          whyBrain: "Hiding prevents judgment and exposure.",
+          shortTerm: "Less fear briefly.",
+          longTerm: "Isolation grows; shame grows; relapse risk grows.",
+          actuallyHelps: "Tell one safe person + make a simple repair step."
+        },
+        {
+          label: "Self-attack to ‘punish’ yourself into change",
+          type: "trap",
+          whyBrain: "Punishment feels like control, but it’s threat-based learning.",
+          shortTerm: "None (usually worse).",
+          longTerm: "More shame, more avoidance, more cravings.",
+          actuallyHelps: "Compassion + accountability: ‘What’s the next right repair?’"
+        },
+        {
+          label: "Name it: “This is shame. It wants me isolated.”",
+          type: "help",
+          whyBrain: "Labeling reduces fusion and creates choice.",
+          shortTerm: "Less intensity.",
+          longTerm: "You interrupt the shame → relapse loop.",
+          actuallyHelps: "Add: ‘I’m allowed to learn.’"
+        },
+        {
+          label: "Do one repair action (own it, apologize, ask for help)",
+          type: "help",
+          whyBrain: "Repair restores safety and agency.",
+          shortTerm: "Uncomfortable but relieving.",
+          longTerm: "Builds integrity and stable relationships.",
+          actuallyHelps: "Keep it simple: one sentence + one change."
+        }
+      ]
+    }
+  ];
+
+  // ===== State =====
+  const state = {
+    dayFilter: "all",
+    scenarioId: scenarios[0]?.id || null,
+    selectedChoiceIndex: null,
+    boardPredict: [],
+    boardActual: [],
+    showCategories: true,
+    showBoard: true
+  };
+
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return;
+      const parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === "object") Object.assign(state, parsed);
+    }catch(e){}
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function tagClass(type){
+    if(type === "help") return "good";
+    if(type === "mixed") return "warn";
+    return "bad";
+  }
+
+  function verdictFor(type){
+    if(type === "help") return {title:"✅ Real Help Choice", cls:"good", line:"This supports regulation, approach, and long-term recovery wiring."};
+    if(type === "mixed") return {title:"⚠️ Mixed Choice", cls:"warn", line:"Not ‘bad,’ but it can drift into avoidance or reassurance loops if it becomes the default."};
+    return {title:"🚨 Quick Relief Trap", cls:"bad", line:"Your brain predicts fast relief, but it usually strengthens the loop and increases cost later."};
+  }
+
+  function filteredScenarios(){
+    const f = state.dayFilter || "all";
+    if(f === "all") return scenarios;
+    return scenarios.filter(s => (s.tags || []).includes(f));
+  }
+
+  function findScenario(id){
+    return scenarios.find(s => s.id === id) || scenarios[0];
+  }
+
+  function ensureScenarioInFilter(){
+    const list = filteredScenarios();
+    if(list.length === 0){
+      state.dayFilter = "all";
+      return;
+    }
+    const ok = list.some(s => s.id === state.scenarioId);
+    if(!ok){
+      state.scenarioId = list[0].id;
+      state.selectedChoiceIndex = null;
+    }
+  }
+
+  function renderScenarioSelect(){
+    ensureScenarioInFilter();
+    const sel = $("scenarioSelect");
+    sel.innerHTML = "";
+
+    const list = filteredScenarios();
+    list.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = `${s.category} — ${s.title}`;
+      sel.appendChild(opt);
+    });
+
+    sel.value = state.scenarioId;
+  }
+
+  function renderScenario(){
+    const s = findScenario(state.scenarioId);
+    $("scenarioTitle").textContent = s.title;
+    $("scenarioText").textContent = s.text;
+
+    const choicesWrap = $("choices");
+    choicesWrap.innerHTML = "";
+
+    s.choices.forEach((c, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "choiceBtn";
+      btn.innerHTML = `${escapeHtml(c.label)}<span class="choiceMeta">Tap to see what happens next</span>`;
+      btn.onclick = () => selectChoice(idx);
+      choicesWrap.appendChild(btn);
+    });
+
+    renderFeedback();
+    renderBoard();
+    save();
+  }
+
+  function selectChoice(idx){
+    state.selectedChoiceIndex = idx;
+    renderFeedback();
+    save();
+  }
+
+  function renderFeedback(){
+    const s = findScenario(state.scenarioId);
+    const fb = $("feedback");
+
+    if(state.selectedChoiceIndex === null || state.selectedChoiceIndex === undefined){
+      fb.style.display = "none";
+      return;
+    }
+
+    const c = s.choices[state.selectedChoiceIndex];
+    fb.style.display = "block";
+
+    const v = verdictFor(c.type);
+    $("banner").className = "banner " + v.cls;
+    $("verdictTitle").textContent = v.title;
+    $("verdictLine").textContent = v.line;
+
+    $("whyBrain").textContent = c.whyBrain;
+    $("shortTerm").textContent = c.shortTerm;
+    $("longTerm").textContent = c.longTerm;
+    $("altHelp").textContent = c.actuallyHelps;
+  }
+
+  function addToBoard(){
+    const s = findScenario(state.scenarioId);
+    if(state.selectedChoiceIndex === null) return;
+
+    const c = s.choices[state.selectedChoiceIndex];
+    const predictText = c.label;
+    const actualText = c.actuallyHelps;
+    const cat = s.category;
+
+    state.boardPredict.unshift({ text: predictText, category: cat, type: c.type, ts: Date.now() });
+    state.boardActual.unshift({ text: actualText, category: cat, type: "help", ts: Date.now() });
+
+    renderBoard();
+    save();
+  }
+
+  function itemToLi(it){
+    const showTag = state.showCategories;
+    const cls = tagClass(it.type);
+    const tag = showTag ? `<div class="tag ${cls}">${escapeHtml(it.category)}</div>` : "";
+    return `<li>${escapeHtml(it.text)}${tag}</li>`;
+  }
+
+  function renderBoard(){
+    $("boardArea").style.display = state.showBoard ? "block" : "none";
+    $("countPredict").textContent = state.boardPredict.length + " items";
+    $("countActual").textContent = state.boardActual.length + " items";
+
+    $("predictList").innerHTML = state.boardPredict.map(itemToLi).join("");
+    $("actualList").innerHTML = state.boardActual.map(itemToLi).join("");
+  }
+
+  function exportText(){
+    const s = findScenario(state.scenarioId);
+    const lines = [];
+    lines.push("🧠 YOUR BRAIN IS A PREDICTION MACHINE — Scenario Choices");
+    lines.push(`Day Filter: ${state.dayFilter}`);
+    lines.push("");
+    lines.push("Current scenario:");
+    lines.push(`- ${s.category}: ${s.title}`);
+    lines.push(`- ${s.text}`);
+    lines.push("");
+
+    if(state.selectedChoiceIndex !== null){
+      const c = s.choices[state.selectedChoiceIndex];
+      const v = verdictFor(c.type);
+      lines.push("Selected choice + feedback:");
+      lines.push(`- Choice: ${c.label}`);
+      lines.push(`- Verdict: ${v.title}`);
+      lines.push(`- Why the brain wants it: ${c.whyBrain}`);
+      lines.push(`- Short-term: ${c.shortTerm}`);
+      lines.push(`- Long-term: ${c.longTerm}`);
+      lines.push(`- Actually helps: ${c.actuallyHelps}`);
+      lines.push("");
+    }
+
+    lines.push("Board — Brain predicts:");
+    if(state.boardPredict.length === 0) lines.push("  (none)");
+    state.boardPredict.slice().reverse().forEach(it => lines.push(`  - [${it.category}] ${it.text}`));
+    lines.push("");
+
+    lines.push("Board — Actually helps:");
+    if(state.boardActual.length === 0) lines.push("  (none)");
+    state.boardActual.slice().reverse().forEach(it => lines.push(`  - [${it.category}] ${it.text}`));
+    lines.push("");
+
+    lines.push("Tip: Look for the dominant pattern. Fast relief trains loops; approach + regulation + values breaks loops.");
+
+    const out = lines.join("\n");
+    $("exportPreview").value = out;
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(out).catch(()=>{});
+    }
+  }
+
+  function clearBoard(){
+    if(!confirm("Clear the board lists?")) return;
+    state.boardPredict = [];
+    state.boardActual = [];
+    $("exportPreview").value = "";
+    renderBoard();
+    save();
+  }
+
+  function clearFeedback(){
+    state.selectedChoiceIndex = null;
+    renderFeedback();
+    save();
+  }
+
+  function pickRandom(){
+    const list = filteredScenarios();
+    if(list.length === 0) return;
+    const idx = Math.floor(Math.random() * list.length);
+    state.scenarioId = list[idx].id;
+    state.selectedChoiceIndex = null;
+    renderScenarioSelect();
+    renderScenario();
+  }
+
+  // ===== Events =====
+  $("dayFilter").addEventListener("change", (e) => {
+    state.dayFilter = e.target.value;
+    state.selectedChoiceIndex = null;
+    renderScenarioSelect();
+    renderScenario();
+    save();
+  });
+
+  $("scenarioSelect").addEventListener("change", (e) => {
+    state.scenarioId = e.target.value;
+    state.selectedChoiceIndex = null;
+    renderScenario();
+  });
+
+  $("randomBtn").addEventListener("click", pickRandom);
+  $("resetChoiceBtn").addEventListener("click", clearFeedback);
+  $("tryAnotherBtn").addEventListener("click", clearFeedback);
+  $("addToBoardBtn").addEventListener("click", addToBoard);
+
+  $("exportBtn").addEventListener("click", exportText);
+  $("clearBoardBtn").addEventListener("click", clearBoard);
+
+  $("showCategories").addEventListener("change", (e) => {
+    state.showCategories = e.target.checked;
+    renderBoard();
+    save();
+  });
+  $("showBoard").addEventListener("change", (e) => {
+    state.showBoard = e.target.checked;
+    renderBoard();
+    save();
+  });
+
+  // ===== Init =====
+  load();
+  $("dayFilter").value = state.dayFilter || "all";
+  if(!state.scenarioId) state.scenarioId = scenarios[0]?.id || null;
+
+  renderScenarioSelect();
+  renderScenario();
+})();
+</script>
+</body>
+</html>
